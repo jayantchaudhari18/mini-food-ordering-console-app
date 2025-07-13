@@ -1,0 +1,12 @@
+package com.aurionpro.model;
+
+public interface IDeliveryService {
+    // Assigns a delivery partner at random
+    String assignDeliveryPartner();
+
+    // Adds a new delivery partner to the system
+    void addPartner(String partnerName);
+
+    // Displays all delivery partners
+    void showPartners();
+}
