@@ -92,7 +92,9 @@ public class FoodOrderingApp {
             System.out.println("2. Add Delivery Partner");
             System.out.println("3. Show Menu");
             System.out.println("4. Show Delivery Partners");
-            System.out.println("5. Back");
+            System.out.println("5. Remove Delivery Partners");
+            System.out.println("6. Remove Menu Item");
+            System.out.println("7. Back");
             System.out.print("Enter your choice: ");
             int adminChoice = scanner.nextInt();
             scanner.nextLine();
@@ -111,7 +113,11 @@ public class FoodOrderingApp {
                     deliveryService.showPartners();
                     break;
                 case 5:
-                    return;
+                    removeDeliveryPartner();
+                case 6:
+                    removeMenuItem();    
+                case 7:
+                    return;    
                 default:
                     System.out.println("Invalid choice.");
             }
@@ -139,12 +145,34 @@ public class FoodOrderingApp {
         menuService.addMenuItem(newItem);
         System.out.println("Item added successfully.");
     }
+    
+    private static void removeMenuItem() {
+
+    	menuService.displayMenu();
+        System.out.println("Enter Item ID: ");
+ 
+        int index = scanner.nextInt();
+        scanner.nextLine();
+
+ 
+
+ 
+        menuService.removeMenuItem(index);
+        System.out.println("Item removed successfully.");
+    }
 
     private static void addDeliveryPartner() {
         System.out.print("Enter Partner Name: ");
         String partner = scanner.nextLine();
         deliveryService.addPartner(partner);
         System.out.println("Partner added.");
+    }
+    
+    private static void removeDeliveryPartner() {
+        System.out.print("Enter Partner Name: ");
+        String partner = scanner.nextLine();
+        deliveryService.removePartner(partner);
+        System.out.println("Partner removed.");
     }
 
     //Customer panel code
@@ -301,7 +329,7 @@ public class FoodOrderingApp {
             	String folderPath = "invoices";
             	File directory = new File(folderPath);
             	if (!directory.exists()) {
-            	    directory.mkdirs(); // creates folder if it doesn't exist
+            	    directory.mkdirs(); // folder create -if it does not exist
             	}
 
             	String fileName = folderPath + "/Invoice_" + System.currentTimeMillis() + ".txt";
@@ -323,11 +351,11 @@ public class FoodOrderingApp {
                 writer.printf("%-30s %s\n", "Delivery Partner:", order.getDeliveryPartner());
 
                 writer.close();
-                System.out.println("✅ Invoice saved at: " + new File(fileName).getAbsolutePath());
+                System.out.println("Invoice saved at: " + new File(fileName).getAbsolutePath());
 
-                System.out.println("✅ Invoice printed to file: " + fileName);
+                System.out.println("Invoice printed to file: " + fileName);
             } catch (Exception e) {
-                System.out.println("❌ Error printing invoice: " + e.getMessage());
+                System.out.println("Error printing invoice: " + e.getMessage());
             }
         }
 

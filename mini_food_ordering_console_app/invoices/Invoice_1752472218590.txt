@@ -1,0 +1,9 @@
+=== Invoice ===
+Item                           Qty        Price     
+----------------------------------------------------
+Dal Tadka                      3          Rs.540.00    
+----------------------------------------------------
+Total:                         Rs.540.00    
+Discounted:                    Rs.486.00    
+Payment Mode:                  Credit Card
+Delivery Partner:              Rahul

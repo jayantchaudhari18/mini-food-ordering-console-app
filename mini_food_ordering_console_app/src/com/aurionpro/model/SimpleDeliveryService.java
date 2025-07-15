@@ -21,6 +21,10 @@ public class SimpleDeliveryService implements IDeliveryService {
     public void addPartner(String partnerName) {
         partners.add(partnerName);
     }
+    
+    public void removePartner(String partnerName) {
+        partners.remove(partnerName);
+    }
 
     public void showPartners() {
         if (partners.isEmpty()) {

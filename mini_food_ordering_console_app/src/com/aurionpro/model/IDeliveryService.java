@@ -9,4 +9,6 @@ public interface IDeliveryService {
 
     // Displays all delivery partners
     void showPartners();
+
+	void removePartner(String partner);
 }

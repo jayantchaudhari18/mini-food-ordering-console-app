@@ -8,5 +8,6 @@ public interface IMenuService {
     void addMenuItem(MenuItem item);
     List<MenuItem> getAllMenuItems();
     MenuItem getItemById(int id);
+	void removeMenuItem(int index);
 }
 
