@@ -4,23 +4,24 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+import com.aurionpro.discount.FlatDiscountStrategy;
+import com.aurionpro.discount.IDiscountStrategy;
 import com.aurionpro.exceptions.InvalidItemIdException;
 import com.aurionpro.exceptions.InvalidQuantityException;
-import com.aurionpro.model.CashPayment;
-import com.aurionpro.model.CreditCardPayment;
 import com.aurionpro.model.CuisineType;
-import com.aurionpro.model.DebitCardPayment;
-import com.aurionpro.model.FlatDiscountStrategy;
-import com.aurionpro.model.IDeliveryService;
-import com.aurionpro.model.IDiscountStrategy;
-import com.aurionpro.model.IMenuService;
-import com.aurionpro.model.IPaymentProcessor;
 import com.aurionpro.model.MenuItem;
 import com.aurionpro.model.Order;
 import com.aurionpro.model.OrderItem;
-import com.aurionpro.model.SimpleDeliveryService;
-import com.aurionpro.model.SimpleMenuService;
-import com.aurionpro.model.UPIPayment;
+import com.aurionpro.payment.CashPayment;
+import com.aurionpro.payment.CreditCardPayment;
+import com.aurionpro.payment.DebitCardPayment;
+import com.aurionpro.payment.IPaymentProcessor;
+import com.aurionpro.payment.UPIPayment;
+import com.aurionpro.service.IDeliveryService;
+import com.aurionpro.service.IMenuService;
+import com.aurionpro.service.OrderHistoryService;
+import com.aurionpro.service.SimpleDeliveryService;
+import com.aurionpro.service.SimpleMenuService;
 
 public class FoodOrderingApp {
     private static Scanner scanner = new Scanner(System.in);
@@ -29,6 +30,9 @@ public class FoodOrderingApp {
     private static IDiscountStrategy discountStrategy = new FlatDiscountStrategy();
     private static IPaymentProcessor cashPayment = new CashPayment();
     private static IPaymentProcessor upiPayment = new UPIPayment();
+    private static OrderHistoryService orderHistoryService = new OrderHistoryService();
+    
+
 
     public static void main(String[] args) {
     	    menuService.addMenuItem(new MenuItem(0, "Paneer Butter Masala", 250.0, CuisineType.INDIAN));
@@ -49,6 +53,9 @@ public class FoodOrderingApp {
     	    
     	    deliveryService.addPartner("Rahul");
     	    deliveryService.addPartner("Priya");
+    	    
+    	    
+
 
     	
     	
@@ -86,42 +93,73 @@ public class FoodOrderingApp {
     }
 
     private static void adminPanel() {
-        while (true) {
-            System.out.println("\n--- Admin Panel ---");
-            System.out.println("1. Add Menu Item");
-            System.out.println("2. Add Delivery Partner");
-            System.out.println("3. Show Menu");
-            System.out.println("4. Show Delivery Partners");
-            System.out.println("5. Remove Delivery Partners");
-            System.out.println("6. Remove Menu Item");
-            System.out.println("7. Back");
-            System.out.print("Enter your choice: ");
-            int adminChoice = scanner.nextInt();
-            scanner.nextLine();
+        System.out.print("Enter Admin Username: ");
+        String username = scanner.nextLine();
 
-            switch (adminChoice) {
-                case 1:
-                    addMenuItem();
-                    break;
-                case 2:
-                    addDeliveryPartner();
-                    break;
-                case 3:
-                    menuService.displayMenu();
-                    break;
-                case 4:
-                    deliveryService.showPartners();
-                    break;
-                case 5:
-                    removeDeliveryPartner();
-                case 6:
-                    removeMenuItem();    
-                case 7:
-                    return;    
-                default:
-                    System.out.println("Invalid choice.");
-            }
+        System.out.print("Enter Admin Password: ");
+        String password = scanner.nextLine();
+
+        if (authenticateAdmin(username, password)) {
+        	   while (true) {
+                   System.out.println("\n--- Admin Panel ---");
+                   System.out.println("1. Add Menu Item");
+                   System.out.println("2. Add Delivery Partner");
+                   System.out.println("3. Show Menu");
+                   System.out.println("4. Show Delivery Partners");
+                   System.out.println("5. Remove Delivery Partners");
+                   System.out.println("6. View All Orders");
+                   System.out.println("7. Remove Menu Item");
+                   System.out.println("8. Update Menu Item Price");
+                   System.out.println("9. Back");
+                   System.out.print("Enter your choice: ");
+                   int adminChoice = scanner.nextInt();
+                   scanner.nextLine();
+
+                   switch (adminChoice) {
+                       case 1:
+                           addMenuItem();
+                           break;
+                       case 2:
+                           addDeliveryPartner();
+                           break;
+                       case 3:
+                           menuService.displayMenu();
+                           break;
+                       case 4:
+                           deliveryService.showPartners();
+                           break;
+                       case 5:
+                           removeDeliveryPartner();
+                       case 6:
+                           orderHistoryService.displayAllOrders();
+                           break;
+           
+                       case 7:
+                           removeMenuItem();
+                           break;
+                       case 8:
+                           updateMenuItem();
+                           break;
+                       case 9:
+                           return;    
+                       default:
+                           System.out.println("Invalid choice.");
+                   }
+               }
+        	
+        }else {
+            System.out.println("Invalid credentials. Access denied.");
         }
+        
+     
+    }
+    
+    
+    private static boolean authenticateAdmin(String username, String password) {
+        final String ADMIN_USERNAME = "admin";
+        final String ADMIN_PASSWORD = "1234";
+
+        return username.equals(ADMIN_USERNAME) && password.equals(ADMIN_PASSWORD);
     }
 
     private static void addMenuItem() {
@@ -144,6 +182,16 @@ public class FoodOrderingApp {
         MenuItem newItem = new MenuItem(0, name, price, cuisine);
         menuService.addMenuItem(newItem);
         System.out.println("Item added successfully.");
+    }
+    
+    private static void updateMenuItem() {
+        menuService.displayMenu();
+        System.out.print("Enter Item ID to update: ");
+        int itemId = scanner.nextInt();
+        System.out.print("Enter new price: ");
+        double newPrice = scanner.nextDouble();
+        menuService.updateItemPrice(itemId, newPrice);
+        
     }
     
     private static void removeMenuItem() {
@@ -174,6 +222,14 @@ public class FoodOrderingApp {
         deliveryService.removePartner(partner);
         System.out.println("Partner removed.");
     }
+    
+    private static boolean authenticateCustomer(String email, String password) {
+        final String CUSTOMER_EMAIL = "jayant@gmail.com";
+        final String CUSTOMER_PASSWORD = "1234";
+
+        return email.equalsIgnoreCase(CUSTOMER_EMAIL) && password.equals(CUSTOMER_PASSWORD);
+    }
+
 
     //Customer panel code
     private static void customerPanel() {
@@ -181,6 +237,15 @@ public class FoodOrderingApp {
 
 
         boolean finishedOrdering = false;
+        System.out.print("Enter Customer Email: ");
+        String email = scanner.nextLine();
+
+        System.out.print("Enter Password: ");
+        String password = scanner.nextLine();
+
+        if (authenticateCustomer(email, password)) {
+        	
+        
 
         while (!finishedOrdering) {
             System.out.println("\n--- Choose Cuisine to Browse Menu ---");
@@ -227,6 +292,8 @@ public class FoodOrderingApp {
 
                     OrderItem orderItem = new OrderItem(selectedItem, qty);
                     order.addItem(orderItem);
+                    orderHistoryService.saveOrder(order);
+
                     System.out.println("Added to order.");
             		
             	}
@@ -251,20 +318,7 @@ public class FoodOrderingApp {
         System.out.println("Total: Rs." + total);
         System.out.println("After Discount: Rs." + discounted);
 
-//        System.out.println("Choose Payment Mode:");
-//        System.out.println("1. Cash\n2. UPI");
-//        int payChoice = scanner.nextInt();
-//        scanner.nextLine();
-//
-//        if (payChoice == 1) {
-//            cashPayment.processPayment(discounted);
-//            order.setPaymentMode(cashPayment.getPaymentMode());
-//        } else if (payChoice == 2) {
-//            upiPayment.processPayment(discounted);
-//            order.setPaymentMode(upiPayment.getPaymentMode());
-//        } else {
-//            System.out.println("Invalid Payment Mode.");
-//        }
+
         
         System.out.println("Choose Payment Mode:");
         System.out.println("1. Cash\n2. UPI\n3. Credit Card\n4. Debit Card");
@@ -298,14 +352,7 @@ public class FoodOrderingApp {
         String partner = deliveryService.assignDeliveryPartner();
         order.setDeliveryPartner(partner);
 
-//        System.out.println("\n--- Invoice ---");
-//        for (OrderItem item : order.getItems()) {
-//            System.out.println(item.getItem().getName() + " x " + item.getQuantity() + " = Rs." + item.getTotalPrice());
-//        }
-//        System.out.println("Total: Rs." + total);
-//        System.out.println("Discounted: Rs." + discounted);
-//        System.out.println("Payment Mode: " + order.getPaymentMode());
-//        System.out.println("Delivery Partner: " + order.getDeliveryPartner());
+
         
         System.out.println("\n=== Invoice ===");
         System.out.printf("%-30s %-10s %-10s\n", "Item", "Qty", "Price");
@@ -360,5 +407,9 @@ public class FoodOrderingApp {
         }
 
 
+    }else {
+        System.out.println("Invalid credentials. Access denied.");
     }
+    
+}
 }

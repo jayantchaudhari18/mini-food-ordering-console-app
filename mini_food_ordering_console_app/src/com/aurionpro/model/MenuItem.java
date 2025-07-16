@@ -22,7 +22,11 @@ public class MenuItem {
     	this.id = id;
     	}
     
-    public String getName() { 
+    public void setPrice(double price) {
+		this.price = price;
+	}
+
+	public String getName() { 
     	return name;
     	}
     
